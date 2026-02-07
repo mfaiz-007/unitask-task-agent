@@ -14,10 +14,7 @@ metadata: {"clawdbot":{"emoji":"✅"}}
 
 This skill lets an AI agent safely manage a user's Unitask account using **scoped API tokens**.
 
-It supports:
-- CLI usage (local terminal)
-- MCP clients (local stdio MCP)
-- Hosted MCP endpoint (HTTPS via Vercel)
+It is designed for **hosted use on unitask.app**, so end users do not need to run any local server code.
 
 Supported operations:
 - List tasks
@@ -27,6 +24,10 @@ Supported operations:
 - Delete task (soft delete)
 - Read/update settings (optional one-time setup)
 - Plan day time blocks (preview/apply time-blocking)
+
+Subtasks:
+- Subtasks are supported as tasks with a `parent_id`.
+- Create a subtask by creating a task with `parent_id=<parent task id>`.
 
 ## When to use
 
@@ -39,8 +40,7 @@ Use this skill when the user asks for things like:
 ## Required setup
 
 1. User creates a Unitask API token from `Unitask -> Dashboard -> Settings -> API`.
-2. User stores token locally as `UNITASK_API_KEY` (recommended: `/Users/mfaiz/Developer/unified-repo/unitask/website/.env.local`).
-3. Optional base URL override as `UNITASK_API_BASE_URL`.
+2. User stores it in their agent/app as a secret/env var: `UNITASK_API_KEY=<token>`.
 
 Never ask users to paste full tokens in chat logs. Ask them to set environment variables instead.
 
@@ -51,27 +51,18 @@ Never ask users to paste full tokens in chat logs. Ask them to set environment v
 - `delete`: delete tasks.
 - If `write` or `delete` is granted, `read` must also be granted.
 
-## Repo-native commands
+## Hosted MCP (unitask.app, HTTPS)
 
-From this repository:
+Use the hosted MCP endpoint:
 
-```bash
-npm run unitask:api -- list --limit 20
-npm run unitask:api -- get --id <task_id>
-npm run unitask:api -- create --title "Plan today"
-npm run unitask:api -- update-status --id <task_id> --status done
-npm run unitask:api -- delete --id <task_id>
-```
+- `https://unitask.app/api/mcp`
 
-## MCP mode
+Auth header (recommended):
+- `Authorization: Bearer <UNITASK_API_KEY>`
 
-Start MCP server:
+## MCP tools
 
-```bash
-npm run unitask:mcp
-```
-
-Exposed MCP tools:
+Exposed tools:
 - `list_tasks`
 - `get_task`
 - `create_task`
@@ -84,16 +75,6 @@ Exposed MCP tools:
 Recommended usage for time blocking:
 - Call `plan_day_timeblocks` with `apply=false` to preview.
 - Only call again with `apply=true` after the user confirms the plan.
-
-## Hosted MCP (HTTPS)
-
-If the Unitask app is deployed (Vercel), an MCP endpoint is available at:
-
-- `https://<your-domain>/api/mcp`
-
-Auth headers (pick one):
-- `Authorization: Bearer <UNITASK_API_KEY>` (recommended)
-- `X-Unitask-Api-Key: <UNITASK_API_KEY>`
 
 ## Safety rules
 
