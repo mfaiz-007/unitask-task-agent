@@ -1,6 +1,11 @@
 ---
 name: "unitask-task-agent"
-description: "Scoped Unitask task + schedule agent via API or MCP (local stdio or hosted HTTPS)."
+description: "Manage tasks + time blocks in Unitask (unitask.app) via scoped API token (CLI or MCP)."
+homepage: https://unitask.app
+read_when:
+  - User wants to manage Unitask tasks from an AI agent
+  - User wants to time-block today using Unitask scheduled_start + duration_minutes
+metadata: {"clawdbot":{"emoji":"✅"}}
 ---
 
 # Unitask Task Agent
@@ -22,6 +27,14 @@ Supported operations:
 - Delete task (soft delete)
 - Read/update settings (optional one-time setup)
 - Plan day time blocks (preview/apply time-blocking)
+
+## When to use
+
+Use this skill when the user asks for things like:
+- "List my tasks / what's next?"
+- "Create a task for X"
+- "Mark these tasks done"
+- "Time-block my day from 9am to 5pm"
 
 ## Required setup
 
