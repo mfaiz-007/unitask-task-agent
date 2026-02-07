@@ -1,13 +1,18 @@
 ---
 name: "unitask-task-agent"
-description: "Use when a user wants an AI agent to read, create, update, or delete Unitask tasks through their own API token. Supports both local CLI usage and MCP server setup."
+description: "Scoped Unitask task + schedule agent via API or MCP (local stdio or hosted HTTPS)."
 ---
 
 # Unitask Task Agent
 
 ## Purpose
 
-This skill helps AI agents operate a user's Unitask account with scoped API tokens.
+This skill lets an AI agent safely manage a user's Unitask account using **scoped API tokens**.
+
+It supports:
+- CLI usage (local terminal)
+- MCP clients (local stdio MCP)
+- Hosted MCP endpoint (HTTPS via Vercel)
 
 Supported operations:
 - List tasks
@@ -15,8 +20,8 @@ Supported operations:
 - Create task
 - Update task status
 - Delete task (soft delete)
-- Read/update settings (optional onboarding setup)
-- Plan day time blocks (preview/apply)
+- Read/update settings (optional one-time setup)
+- Plan day time blocks (preview/apply time-blocking)
 
 ## Required setup
 
@@ -24,7 +29,7 @@ Supported operations:
 2. User stores token locally as `UNITASK_API_KEY` (recommended: `/Users/mfaiz/Developer/unified-repo/unitask/website/.env.local`).
 3. Optional base URL override as `UNITASK_API_BASE_URL`.
 
-Never ask users to paste full tokens in chat logs.
+Never ask users to paste full tokens in chat logs. Ask them to set environment variables instead.
 
 ## Scope model
 
@@ -62,6 +67,10 @@ Exposed MCP tools:
 - `get_settings`
 - `update_settings`
 - `plan_day_timeblocks`
+
+Recommended usage for time blocking:
+- Call `plan_day_timeblocks` with `apply=false` to preview.
+- Only call again with `apply=true` after the user confirms the plan.
 
 ## Hosted MCP (HTTPS)
 
