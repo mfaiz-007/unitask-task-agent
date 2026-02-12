@@ -1,60 +1,56 @@
 ---
-name: "unitask-task-agent"
-description: "Manage tasks + time blocks in Unitask (unitask.app) via scoped API token (CLI or MCP)."
+name: "unitask-agent"
+description: "Start finishing tasks instead of just organizing them: connect your OpenClaw agent to Unitask (unitask.app) to manage and do your tasks with secure prioritization, tags, time blocks and more."
 homepage: https://unitask.app
 read_when:
   - User wants to manage Unitask tasks from an AI agent
   - User wants to time-block today using Unitask scheduled_start + duration_minutes
-metadata: {"clawdbot":{"emoji":"✅"}}
+metadata: {"clawdbot":{"emoji":"✅","requires":{"env":["UNITASK_API_KEY"]},"primaryEnv":"UNITASK_API_KEY"}}
 ---
 
-# Unitask Task Agent
+# Unitask Agent
 
 ## Purpose
 
 This skill lets an AI agent safely manage a user's Unitask account using **scoped API tokens**.
-
-It is designed for **hosted use on unitask.app**, so end users do not need to run any local server code.
+Unitask is in **public beta**. Anyone can sign up at `https://unitask.app`.
 
 Supported operations:
 - List tasks
 - Get one task
 - Create task
-- Update task status
+- Update task fields (`update_task`)
+- Update status (`update_task_status`)
+- Move subtask to a different parent (`move_subtask`)
+- Merge parent tasks (`merge_parent_tasks`)
+- List/create/update/delete tags
+- Add/remove tags on tasks
 - Delete task (soft delete)
 - Read/update settings (optional one-time setup)
-- Plan day time blocks (preview/apply time-blocking)
+- Plan day time blocks (preview/apply)
 
 Subtasks:
-- Subtasks are supported as tasks with a `parent_id`.
-- Create a subtask by creating a task with `parent_id=<parent task id>`.
-
-## When to use
-
-Use this skill when the user asks for things like:
-- "List my tasks / what's next?"
-- "Create a task for X"
-- "Mark these tasks done"
-- "Time-block my day from 9am to 5pm"
+- Subtasks are tasks with a `parent_id`.
+- Create a subtask via `create_task` with `parent_id=<parent id>`.
 
 ## Required setup
 
-1. User creates a Unitask API token from `Unitask -> Dashboard -> Settings -> API`.
-2. User stores it in their agent/app as a secret/env var: `UNITASK_API_KEY=<token>`.
+1. User signs up (public beta) at `https://unitask.app` if they do not already have an account.
+2. User creates a Unitask API token from `Unitask -> Dashboard -> Settings -> API`.
+3. User stores it in their agent/app secret store as: `UNITASK_API_KEY=<token>`.
 
-Never ask users to paste full tokens in chat logs. Ask them to set environment variables instead.
+Never ask users to paste full tokens in chat logs.
 
 ## Scope model
 
-- `read`: required to read/list tasks.
-- `write`: create/update tasks.
-- `delete`: delete tasks.
+- `read`: required for read/list actions.
+- `write`: required for create/update/move/merge actions.
+- `delete`: required for delete actions.
 - If `write` or `delete` is granted, `read` must also be granted.
 
 ## Hosted MCP (unitask.app, HTTPS)
 
-Use the hosted MCP endpoint:
-
+Endpoint:
 - `https://unitask.app/api/mcp`
 
 Auth header (recommended):
@@ -62,23 +58,30 @@ Auth header (recommended):
 
 ## MCP tools
 
-Exposed tools:
-- `list_tasks` — filter by `status` (todo|done|archived), `limit` (1-500), `offset`, `parent_id`
-- `get_task` — get one task by id
-- `create_task` — title required; optional: description, parent_id, status, priority, due_date, start_date, recurrence, scheduled_start, duration_minutes
-- `update_task_status` — change status (todo|done|archived)
+- `list_tasks` — filter by `status` (`todo|done`), `limit`, `offset`, `parent_id`, `tag_id`
+  - advanced filters: `view` (`today|upcoming`), `tz`, `window_days`, `due_from`, `due_to`, `start_from`, `start_to`, `sort_by`, `sort_dir`
+- `get_task` — fetch one task
+- `create_task` — create task/subtask
+- `update_task` — full mutable field update
+- `update_task_status` — status-only helper
+- `move_subtask` — move a subtask between parents (`dry_run` default true)
+- `merge_parent_tasks` — merge parent trees (`dry_run` default true)
 - `delete_task` — soft-delete task + descendants
-- `get_settings` — get user settings + quiz prefs
-- `update_settings` — partial update settings/quiz
-- `plan_day_timeblocks` — schedule time blocks in a window
-
-Recommended usage for time blocking:
-- Call `plan_day_timeblocks` with `apply=false` to preview.
-- Only call again with `apply=true` after the user confirms the plan.
+- `list_tags` — list available tags
+- `get_tag` — fetch one tag
+- `create_tag` — create a tag
+- `update_tag` — edit tag name/color/deleted
+- `delete_tag` — soft-delete tag
+- `add_task_tag` — attach tag to task
+- `remove_task_tag` — detach tag from task
+- `get_settings` — get user settings
+- `update_settings` — update settings/quiz
+- `plan_day_timeblocks` — preview/apply schedule
 
 ## Safety rules
 
 - Use smallest required scope for the requested action.
+- For public beta, keep least-privilege scopes by workflow: `read`, `write`, `delete`.
 - Confirm destructive actions (delete) unless user explicitly asks to proceed.
-- Prefer `status=done` over delete when user intent is completion, not removal.
-- For `plan_day_timeblocks`, prefer preview (`apply=false`) first; only apply after user confirms.
+- Prefer `status=done` over delete when intent is completion.
+- For `move_subtask` and `merge_parent_tasks`, keep `dry_run=true` first and apply only after confirmation.

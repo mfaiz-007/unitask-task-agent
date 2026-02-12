@@ -1,18 +1,25 @@
-# Unitask Task Agent
+# Unitask Agent
 
-Use Unitask (unitask.app) with AI agents via **hosted MCP** and **scoped API tokens**.
+Start finishing tasks instead of just organizing them: connect any AI agent to Unitask (unitask.app) to manage and do your tasks with secure prioritization, tags, time blocks and more.
+
+Unitask is now in **public beta**. Anyone can sign up at `https://unitask.app` and create a scoped API token.
 
 ## What it does
 
 - Read tasks
 - Create/update tasks (including subtasks via `parent_id`)
+- Move subtasks between parent tasks
+- Merge parent tasks (with preview first)
+- Create/edit/delete tags
+- Add/remove tags on tasks
 - Soft-delete tasks
 - Time-block your day (writes `scheduled_start` + `duration_minutes`)
 
 ## Setup
 
-1. In Unitask: `Dashboard -> Settings -> API` create an API token with the scopes you want.
-2. In your AI app / MCP client config, store the token as `UNITASK_API_KEY` (never paste tokens into chats).
+1. Sign up at `https://unitask.app` (public beta) if you do not already have an account.
+2. In Unitask: `Dashboard -> Settings -> API` create an API token with scopes you need.
+3. In your AI app / MCP client config, store token as `UNITASK_API_KEY` (never paste tokens in chat).
 
 ## Hosted MCP endpoint
 
@@ -38,8 +45,6 @@ Create/edit `~/.claude.json`:
   }
 }
 ```
-
-Then set `UNITASK_API_KEY` in your shell environment (or Claude secrets UI, if you use that).
 
 ### VS Code (remote HTTP MCP)
 
@@ -67,13 +72,9 @@ Create `.vscode/mcp.json` in your workspace:
 }
 ```
 
-### Generic (any MCP client that supports HTTP + headers)
-
-- URL: `https://unitask.app/api/mcp`
-- Header: `Authorization: Bearer <UNITASK_API_KEY>`
-
 ## Safety
 
 - Use the smallest scope needed.
-- Preview time-block plans (`apply=false`) before applying.
-- Confirm deletes unless the user explicitly requested deletion.
+- Scope guidance: `read` for retrieval, `write` for create/update, `delete` only when required.
+- Keep `dry_run=true` first for compound actions (move/merge/timeblock apply).
+- Confirm deletes unless user explicitly requested deletion.
