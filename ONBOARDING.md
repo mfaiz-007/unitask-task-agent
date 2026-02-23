@@ -32,17 +32,24 @@ Guide user:
 
 ## Step 4: Store token securely
 Ask where they run the agent:
-1. OpenClaw
-2. Claude Code
-3. VS Code MCP
-4. Other MCP client
+1. OpenClaw (if already in use)
+2. Codex IDE
+3. Claude Code
+4. VS Code MCP
+5. Other MCP client
 
 Then guide to configure:
 - Env var key: `UNITASK_API_KEY`
 - Header: `Authorization: Bearer <UNITASK_API_KEY>`
 - Endpoint: `https://unitask.app/api/mcp`
 
-## Step 5: Connectivity verification
+## Step 5: Set account timezone (recommended one-time setup)
+Guide user:
+1. Detect preferred IANA timezone (example: `America/New_York`).
+2. Save it with `update_settings({ settings: { timeZone: "<IANA>" } })`.
+3. Explain that `list_tasks` will use this timezone by default when `tz` is omitted.
+
+## Step 6: Connectivity verification
 Run these checks in order:
 1. `list_tasks` with `limit=5`
 2. `list_tags`
@@ -53,7 +60,7 @@ If any step fails:
 - Verify header value is injected.
 - Verify endpoint URL is exact.
 
-## Step 6: First-value commands (guided)
+## Step 7: First-value commands (guided)
 Offer starter prompts:
 - "What are my tasks for today?"
 - "Create a task: ship MCP tag support"

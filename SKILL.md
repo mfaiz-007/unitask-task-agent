@@ -1,11 +1,11 @@
 ---
 name: "unitask-agent"
-description: "Start finishing tasks instead of just organizing them: connect your OpenClaw agent to Unitask (unitask.app) to manage and do your tasks with secure prioritization, tags, time blocks and more."
+description: "Start finishing tasks instead of just organizing them: connect your OpenClaw, Codex IDE, or Claude Code agent to Unitask (unitask.app) to manage and do your tasks with secure prioritization, tags, and time blocks."
 homepage: https://unitask.app
 read_when:
   - User wants to manage Unitask tasks from an AI agent
   - User wants to time-block today using Unitask scheduled_start + duration_minutes
-metadata: {"clawdbot":{"emoji":"✅","requires":{"env":["UNITASK_API_KEY"]},"primaryEnv":"UNITASK_API_KEY"}}
+metadata: {"openclaw":{"emoji":"✅","requires":{"env":["UNITASK_API_KEY"]},"primaryEnv":"UNITASK_API_KEY"}}
 ---
 
 # Unitask Agent
@@ -14,6 +14,7 @@ metadata: {"clawdbot":{"emoji":"✅","requires":{"env":["UNITASK_API_KEY"]},"pri
 
 This skill lets an AI agent safely manage a user's Unitask account using **scoped API tokens**.
 Unitask is in **public beta**. Anyone can sign up at `https://unitask.app`.
+Works with OpenClaw, Codex IDE, Claude Code, and other MCP-compatible runtimes.
 
 Supported operations:
 - List tasks
@@ -59,7 +60,10 @@ Auth header (recommended):
 ## MCP tools
 
 - `list_tasks` — filter by `status` (`todo|done`), `limit`, `offset`, `parent_id`, `tag_id`
-  - advanced filters: `view` (`today|upcoming`), `tz`, `window_days`, `due_from`, `due_to`, `start_from`, `start_to`, `sort_by`, `sort_dir`
+  - advanced filters: `view` (`today|upcoming`), `tz` (optional override), `window_days`, `due_from`, `due_to`, `start_from`, `start_to`, `sort_by`, `sort_dir`
+  - token-efficient controls: `fields`, `compact` (`compact|minimal`), `include_description`, `description_max_chars`, `description_ellipsis`
+  - targeted filters: `recurring_only`, `priority_buckets`, `has_scheduled`, `has_start_date`, `has_due_date`
+  - shaping precedence: `fields` overrides `compact`; `include_description` can force include/exclude description
 - `get_task` — fetch one task
 - `create_task` — create task/subtask
 - `update_task` — full mutable field update
@@ -78,6 +82,10 @@ Auth header (recommended):
 - `update_settings` — update settings/quiz
 - `plan_day_timeblocks` — preview/apply schedule
 
+Timezone default behavior:
+- If `tz` is omitted in `list_tasks`, Unitask defaults to the account timezone (`settings.timeZone`).
+- One-time setup example: `update_settings({ settings: { timeZone: "America/New_York" } })`.
+
 ## Safety rules
 
 - Use smallest required scope for the requested action.
@@ -85,3 +93,4 @@ Auth header (recommended):
 - Confirm destructive actions (delete) unless user explicitly asks to proceed.
 - Prefer `status=done` over delete when intent is completion.
 - For `move_subtask` and `merge_parent_tasks`, keep `dry_run=true` first and apply only after confirmation.
+- For large backlogs, prefer token-efficient `list_tasks` retrieval first (projection/compact + targeted filters), then fetch individual task detail only when needed.
