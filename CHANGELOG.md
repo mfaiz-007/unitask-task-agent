@@ -9,6 +9,18 @@
 
 ### Security
 
+## [0.18.1] - 2026-03-10
+### Added
+
+### Changed
+- Aligned the hosted and stdio MCP server metadata to report the current `unitask-agent` release line.
+- Repackaged the canonical `unitask-agent` skill bundle for GitHub and ClawHub so published files match the local source-of-truth package.
+
+### Fixed
+- Corrected online distribution drift where ClawHub `0.18.0` files lagged behind the local and GitHub skill package contents.
+
+### Security
+
 ## [0.18.0] - 2026-02-23
 ### Added
 - Expanded the published skill package coverage to include richer real-world prompt/output examples and setup guidance for modern agent runtimes.
